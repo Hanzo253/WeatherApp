@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <title>Weather App</title>
+    <style>
+      * {
+	  margin: 0;
+	  padding: 0;
+	  box-sizing: border-box;
+      }
+
+      body {
+	  margin: 0;
+	  padding: 0;
+	  background: #00b4ff;
+	  color: #333;
+	  font: 100% Arial, Sans Serif;
+	  height: 100vh;
+	  overflow-x: hidden;
+      }
+      
+      .background-wrap {
+	  bottom: 0;
+	  left: 0;
+	  padding-top: 50px;
+	  position: fixed;
+	  right: 0;
+	  top: 0;
+	  z-index: -1;
+      }
+
+      .fogbackground-wrap {
+	  bottom: 0;
+	  left: 0;
+	  position: fixed;
+	  right: 0;
+	  top: 0;
+	  z-index: -1;
+      }
+
+      .rain-background {
+	  bottom: 0;
+	  left: 0;
+	  padding-top: 50px;
+	  position: fixed;
+	  right: 0;
+	  top: 0;
+	  z-index: -1;
+	  background: url(https://i.imgur.com/dJM0sWj.png);
+	  animation: rain 1s linear infinite;
+      }
+
+      .thunderstorm-background {
+	  bottom: 0;
+	  left: 0;
+	  position: fixed;
+	  right: 0;
+	  top: 0;
+	  z-index: -1;
+	  background: url(https://i.imgur.com/dJM0sWj.png);
+	  animation: rain 1s linear infinite;
+      }
+
+      .thunderstorm-background::before {
+	  content: '';
+	  position: absolute;
+	  width: 100%;
+	  height: 100%;
+	  background: #fff;
+	  animation: lightning 3s linear infinite;
+	  opacity: 0;
+      }
+
+      .fog-container {
+	  position: absolute;
+	  width: 100%;
+	  height: 100%;
+	  overflow: hidden;
+	  z-index: 1;
+      }
+
+      .fog-img {
+	  position: absolute;
+	  height: 100vh;
+	  width: 300vw;
+	  z-index: 2;
+      }
+
+      .fog-img-first {
+	  background: url("https://i.imgur.com/gGBqgbz.png");
+	  background-repeat: repeat-x;
+	  background-size: contain;
+	  background-position: center;
+	  animation: fogflow 60s linear infinite;
+      }
+
+      .fog-img-second {
+	  background: url("https://i.imgur.com/3T0KxMq.png");
+	  background-repeat: repeat-x;
+	  background-size: contain;
+	  background-position: center;
+	  animation: fogflow 30s linear infinite;
+      }
+
+      @keyframes fogflow {
+	  0% {
+	      transform: translate3d(0, 0, 0);
+	  }
+
+	  100% {
+	      transform: translate3d(-200vw, 0, 0);
+	  }
+      }
+
+      .snow {
+	  color: white;
+	  position: absolute;
+	  top: -10%;
+	  animation: snowfall 15s linear infinite, snowflow 5s ease-in-out infinite;
+      }
+
+      @keyframes snowfall {
+	  0% {
+	      top: -10%;
+	  }
+
+	  100% {
+	      top: 100%;
+	  }
+      }
+
+      @keyframes snowflow {
+	  0% {
+	      transform: translateX(0px);
+	  }
+
+	  50% {
+	      transform: translateX(50px);
+	  }
+
+	  100% {
+	      transform: translateX(0px);
+	  }
+      }
+
+      .snow:nth-of-type(1) {
+	  left: 5%;
+	  animation-delay: 1s;
+      }
+
+      .snow:nth-of-type(2) {
+      	  left: 10%;
+      	  animation-delay: 4s;
+      }
+
+      .snow:nth-of-type(3) {
+      	  left: 15%;
+      	  animation-delay: 3s;
+      }
+
+      .snow:nth-of-type(4) {
+      	  left: 20%;
+      	  animation-delay: 10s;
+      }
+
+      .snow:nth-of-type(5) {
+      	  left: 25%;
+      	  animation-delay: 2s;
+      }
+
+      .snow:nth-of-type(6) {
+      	  left: 30%;
+	  animation-delay: 8s;
+      }
+
+      .snow:nth-of-type(7) {
+      	  left: 35%;
+	  animation-delay: 13s;
+      }
+      
+      .snow:nth-of-type(8) {
+      	  left: 40%;
+	  animation-delay: 5s;
+      }
+      
+      .snow:nth-of-type(9) {
+      	  left: 45%;
+	  animation-delay: 12.5s;
+      }
+
+      .snow:nth-of-type(10) {
+      	  left: 50%;
+	  animation-delay: 2s;
+      }
+
+      .snow:nth-of-type(11) {
+      	  left: 55%;
+	  animation-delay: 5s;
+      }
+
+      .snow:nth-of-type(12) {
+      	  left: 60%;
+	  animation-delay: 4s;
+      }
+
+      .snow:nth-of-type(13) {
+      	  left: 65%;
+	  animation-delay: 9s;
+      }
+
+      .snow:nth-of-type(14) {
+      	  left: 70%;
+	  animation-delay: 5s;
+      }
+
+      .snow:nth-of-type(15) {
+      	  left: 75%;
+	  animation-delay: 8s;
+      }
+
+      .snow:nth-of-type(16) {
+      	  left: 5%;
+	  animation-delay: 2s;
+      }
+
+      .snow:nth-of-type(17) {
+      	  left: 10%;
+	  animation-delay: 10s;
+      }
+
+      .snow:nth-of-type(18) {
+      	  left: 15%;
+	  animation-delay: 1s;
+      }
+
+      .snow:nth-of-type(19) {
+      	  left: 20%;
+	  animation-delay: 10s;
+      }
+
+      .snow:nth-of-type(20) {
+      	  left: 25%;
+	  animation-delay: 6s;
+      }
+
+      .snow:nth-of-type(21) {
+      	  left: 80%;
+	  animation-delay: 3s;
+      }
+
+      .snow:nth-of-type(22) {
+      	  left: 85%;
+	  animation-delay: 12s;
+      }
+
+      .snow:nth-of-type(23) {
+      	  left: 90%;
+	  animation-delay: 4s;
+      }
+
+      .snow:nth-of-type(24) {
+      	  left: 95%;
+	  animation-delay: 1s;
+      }
+
+      @keyframes lightning {
+	  0% {
+	      opacity: 0;
+	  }
+
+	  10% {
+	      opacity: 0;
+	  }
+
+	  11% {
+	      opacity: 1;
+	  }
+
+	  14% {
+	      opacity: 0;
+	  }
+
+	  20% {
+	      opacity: 0;
+	  }
+
+	  21% {
+	      opacity: 1;
+	  }
+
+	  24% {
+	      opacity: 0;
+	  }
+
+	  104% {
+	      opacity: 0;
+	  }
+      }
+
+      @keyframes rain {
+	  0% {
+	      background-position: 0 0;
+	  }
+
+	  100% {
+	      background-position: 20% 100%;
+	  }
+      }
+
+      @-webkit-keyframes animateCloud {
+	  0% {
+              margin-left: -1000px;
+	  }
+	  
+	  100% {
+              margin-left: 100%;
+	  }
+      }
+
+      @-moz-keyframes animateCloud {
+	  0% {
+              margin-left: -1000px;
+	  }
+	  
+	  100% {
+              margin-left: 100%;
+	  }
+      }
+
+      @keyframes animateCloud {
+	  0% {
+              margin-left: -1000px;
+	  }
+	  
+	  100% {
+              margin-left: 100%;
+	  }
+      }
+
+      .x1 {
+	  -webkit-animation: animateCloud 35s linear infinite;
+	  -moz-animation: animateCloud 35s linear infinite;
+	  animation: animateCloud 35s linear infinite;
+	  
+	  -webkit-transform: scale(0.65);
+	  -moz-transform: scale(0.65);
+	  transform: scale(0.65);
+      }
+
+      .x2 {
+	  -webkit-animation: animateCloud 20s linear infinite;
+	  -moz-animation: animateCloud 20s linear infinite;
+	  animation: animateCloud 20s linear infinite;
+
+	  -webkit-transform: scale(0.35);
+	  -moz-transform: scale(0.35);
+	  transform: scale(0.35);
+      }
+
+      .x3 {
+	  -webkit-animation: animateCloud 30s linear infinite;
+	  -moz-animation: animateCloud 30s linear infinite;
+	  animation: animateCloud 30s linear infinite;
+	  
+	  -webkit-transform: scale(0.5);
+	  -moz-transform: scale(0.5);
+	  transform: scale(0.5);
+      }
+
+      .x4 {
+	  -webkit-animation: animateCloud 18s linear infinite;
+	  -moz-animation: animateCloud 18s linear infinite;
+	  animation: animateCloud 18s linear infinite;
+
+	  -webkit-transform: scale(0.4);
+	  -moz-transform: scale(0.4);
+	  transform: scale(0.4);
+      }
+
+      .x5 {
+	  -webkit-animation: animateCloud 20s linear infinite;
+	  -moz-animation: animateCloud 20s linear infinite;
+	  animation: animateCloud 20s linear infinite;
+
+	  -webkit-transform: scale(0.55);
+	  -moz-transform: scale(0.55);
+	  transform: scale(0.55);
+      }
+
+      .x6 {
+	  -webkit-animation: animateCloud 25s linear infinite;
+	  -moz-animation: animateCloud 25s linear infinite;
+	  animation: animateCloud 25s linear infinite;
+
+	  -webkit-transform: scale(0.45);
+	  -moz-transform: scale(0.45);
+	  transform: scale(0.45);
+      }
+
+      .x7 {
+	  -webkit-animation: animateCloud 35s linear infinite;
+	  -moz-animation: animateCloud 35s linear infinite;
+	  animation: animateCloud 35s linear infinite;
+
+	  -webkit-transform: scale(0.60);
+	  -moz-transform: scale(0.60);
+	  transform: scale(0.60);
+      }
+
+      .cloud {
+	  background: #fff;
+
+	  -webkit-border-radius: 100px;
+	  -moz-border-radius: 100px;
+	  border-radius: 100px;
+
+	  -webkit-box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
+	  -moz-box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
+	  box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
+
+	  height: 120px;
+	  position: relative;
+	  width: 350px;
+      }
+
+      .cloud-night {
+	  background: cornflowerblue;
+
+	  -webkit-border-radius: 100px;
+	  -moz-border-radius: 100px;
+	  border-radius: 100px;
+
+	  -webkit-box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
+	  -moz-box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
+	  box-shadow: 0 8px 5px rgba(0, 0, 0, 0.1);
+
+	  height: 120px;
+	  position: relative;
+	  width: 350px;
+      }
+
+      .cloud::after, .cloud::before {
+	  background: #fff;
+	  content: '';
+	  position: absolute;
+	  z-index: -1;
+      }
+
+      .cloud-night::after, .cloud-night::before {
+	  background: cornflowerblue;
+	  content: '';
+	  position: absolute;
+	  z-index: -1;
+      }
+
+      .cloud::after {
+	  -webkit-border-radius: 100px;
+	  -moz-border-radius: 100px;
+	  border-radius: 100px;
+
+	  height: 100px;
+	  left: 50px;
+	  top: -50px;
+	  width: 100px;
+      }
+
+      .cloud-night::after {
+	  -webkit-border-radius: 100px;
+	  -moz-border-radius: 100px;
+	  border-radius: 100px;
+
+	  height: 100px;
+	  left: 50px;
+	  top: -50px;
+	  width: 100px;
+      }
+
+      .cloud::before {
+	  -webkit-border-radius: 200px;
+	  -moz-border-radius: 200px;
+	  border-radius: 200px;
+
+	  width: 180px;
+	  height: 180px;
+	  right: 50px;
+	  top: -90px;
+      }
+
+      .cloud-night::before {
+	  -webkit-border-radius: 200px;
+	  -moz-border-radius: 200px;
+	  border-radius: 200px;
+
+	  width: 180px;
+	  height: 180px;
+	  right: 50px;
+	  top: -90px;
+      }
+
+      .app {
+	  height: 100vh;
+	  display: flex;
+	  justify-content: center;
+	  flex-direction: column;
+	  align-items: center;
+	  font: 100% Arial, Sans Serif;
+	  color: mediumspringgreen;
+      }
+
+      .location, .temperature {
+	  height: 30vh;
+	  width: 50%;
+	  display: flex;
+	  justify-content: space-around;
+	  align-items: center;
+      }
+
+      .temperature {
+	  flex-direction: column; 
+      }
+
+      .temperature-description {
+	  font-size: 25px;
+      }
+
+      .degree-section {
+	  display: flex;
+	  align-items: center;
+      }
+
+      .degree-section span {
+	  margin: 10px;
+	  font-size: 30px;
+      }
+
+      .degree-section h2 {
+	  font-size: 40px;
+      }
+
+      .clock {
+	  align-items: center;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div class="background-wrap">
+      <div class="x1">
+          <div class="cloud"></div>
+      </div>
+
+      <div class="x2">
+         <div class="cloud"></div>
+      </div>
+
+      <div class="x3">
+         <div class="cloud"></div>
+      </div>
+
+      <div class="x4">
+         <div class="cloud"></div>
+      </div>
+
+      <div class="x5">
+         <div class="cloud"></div>
+      </div>
+
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="snow">&#10052;</div>
+      <div class="fog-container">
+	<div class="fog-img fog-img-first"></div>
+	<div class="fog-img fog-img-second"></div>
+      </div>
+    </div>
+    <div class="app">
+      <div class="app-title">
+	<h1>Weather</h1>
+      </div>
+      <div class="notification"></div>
+      <div class="location">
+        <h1 class="location-timezone">Timezone</h1>
+	<h2 id="clock"></h2>
+	<div class="weather-icon">
+          <img src="icons/unknown.png" alt="icon">
+	</div>
+      </div>
+      <div class="temperature">
+        <div class="degree-section">
+          <h2 class ="temperature-degree">34°F</h2>
+        </div>
+	<div>
+	  <button type="button" class="btn btn-danger">Convert</button>
+	</div>
+        <p class="temperature-description">It's cold</p>
+      </div>
+    </div>
+    <script>
+      window.addEventListener("load", ()=> {
+	  // app variables
+	  let temperatureDesc = document.querySelector(".temperature-description");
+	  let temperatureDegree = document.querySelector(".temperature-degree");
+	  let locationTz = document.querySelector(".location-timezone");
+	  let notification = document.querySelector(".notification");
+	  let weatherIcon = document.querySelector(".weather-icon");
+	  let convertButton = document.querySelector(".btn");
+	  
+	  const weather = {};
+
+	  weather.temperature = {
+	      unit : "fahrenheit"
+	  };
+
+	  // asks if the application can track the user's location
+	  if ("geolocation" in navigator) {
+	      navigator.geolocation.getCurrentPosition(setPosition, showError);
+	  }
+
+	  // will show a notification that will tell the user what the error is
+	  else {
+	      notification.style.display = "block";
+	      notification.innerHTML = "<p>Browser doesn't support Geolocation</p>";
+	  }
+
+	  // converts temperature from fahrenheit to celsius
+	  function convertToCelsius(temperature) {
+	      return Math.floor(temperature - 273);
+	  }
+
+	  // finds the users longitude and latitude
+	  function setPosition(position) {
+	      let longitude = position.coords.longitude;
+	      let latitude = position.coords.latitude;
+
+	      getWeather(latitude, longitude);
+	  }
+
+	  // shows the error on why the location can not be tracked
+	  function showError(error) {
+	      notification.style.display = "block";
+	      notification.innerHTML = `<p>${error.message}</p>`;
+	  }
+
+	  // gets all the weather information from the API
+	  function getWeather(latitude, longitude) {
+	      const api = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=fe5e3fefd2dff0a4c3240a2ccfd11aba`;
+	      fetch(api).then(response => {
+		  return response.json();
+	      }).then(data => {
+		  console.log(data);
+		  const kelvin = 273;
+		  const {temp} = data.main;
+		  weather.temperature.value = Math.floor(Math.floor(temp - kelvin) * 1.8 + 32);
+		  weather.description = data.weather[0].description;
+		  weather.iconId = data.weather[0].icon;
+		  weather.city = data.name;
+		  weather.country = data.sys.country;
+		  convertButton.addEventListener("click", function() {
+	  	      if (weather.temperature.value === undefined) {
+	 		  return;
+	   	      }
+
+	   	      if (weather.temperature.unit == "fahrenheit") {
+	   		  let celsius = convertToCelsius(temp);
+	   		  temperatureDegree.innerHTML = `${celsius}<span>°C</span>`;
+	  		  weather.temperature.unit = "celsius";
+	   	      }
+
+	   	      else {
+	   		  temperatureDegree.innerHTML = `${weather.temperature.value}<span>°F</span>`;
+	   		  weather.temperature.unit = "fahrenheit";
+	   	      }
+		  });
+	      }).then(function() {
+		  showWeather();
+	      });
+	  }
+
+	  // sets the weather information to the html classes to display them on the app
+	  function showWeather() {
+	      temperatureDegree.innerHTML = `${weather.temperature.value}<span>°F</span>`;
+	      weatherIcon.innerHTML = `<img src="icons/${weather.iconId}.png" alt="icon">`;
+	      temperatureDesc.textContent = weather.description;
+	      locationTz.textContent = weather.city + ", " + weather.country;
+	      // these if statements will change the environment based on what the weather is 
+	      if (weather.iconId === "01n" || weather.iconId === "02n" || weather.iconId === "03n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud").addClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background").addClass("background-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("background-wrap");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "01d" || weather.iconId === "02d" || weather.iconId === "03d") {
+		  document.body.style.background = "#00b4ff";
+		  $(".cloud-night").removeClass("cloud-night").addClass("cloud");
+		  $(".rain-background").removeClass("rain-background").addClass("background-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("background-wrap");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "04d") {
+		  document.body.style.background = "#00b4ff";
+		  $(".cloud-night").removeClass("cloud-night").addClass("cloud");
+		  $(".rain-background").removeClass("rain-background").addClass("background-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("background-wrap");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "04n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud").addClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background").addClass("background-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("background-wrap");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "11d" || weather.iconId === "11n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background");
+		  $(".background-wrap").removeClass("background-wrap").addClass("thunderstorm-background");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "10d" || weather.iconId === "10n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background");
+		  $(".background-wrap").removeClass("background-wrap").addClass("rain-background");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "09d" || weather.iconId === "09n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background");
+		  $(".background-wrap").removeClass("background-wrap").addClass("rain-background");
+		  $(".snow").hide();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "13d") {
+		  document.body.style.background = "#00b4ff";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background").addClass("background-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("background-wrap");
+		  $(".snow").show();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "13n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud").removeClass("cloud").addClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background").addClass("background-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("background-wrap");
+		  $(".snow").show();
+		  $(".fog-container").hide();
+	      }
+
+	      if (weather.iconId === "50n") {
+		  document.body.style.background = "midnightblue";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background").addClass("fogbackground-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("fogbackground-wrap");
+		  $(".snow").hide();
+		  $(".fog-container").show();
+	      }
+
+	      if (weather.iconId === "50d") {
+		  document.body.style.background = "#00b4ff";
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+		  $(".rain-background").removeClass("rain-background").addClass("fogbackground-wrap");
+		  $(".thunderstorm-background").removeClass("thunderstorm-background").addClass("fogbackground-wrap");
+		  $(".snow").hide();
+		  $(".fog-container").show();
+	      }
+
+	      if (weather.description === "clear sky") {
+		  $(".cloud").removeClass("cloud");
+		  $(".cloud-night").removeClass("cloud-night");
+	      }
+	  }
+
+	  // display what the current day and time is
+	  function displayTime() {
+	      setInterval(displayTime, 1000);
+	      var date = new Date();
+	      var hours = date.getHours(); // 0 - 23
+	      var minutes = date.getMinutes(); // 0 - 59
+	      var session = "AM";
+
+	      if (hours == 0) {
+		  hours = 12;
+	      }
+
+	      if (hours > 12) {
+		  hours = hours - 12;
+		  session = "PM";
+	      }
+
+	      hours = (hours < 10) ? "0" + hours : hours;
+	      minutes = (minutes < 10) ? "0" + minutes : minutes;
+
+	      var weekday = new Array(7);
+	      weekday[0] = "Sunday";
+	      weekday[1] = "Monday";
+	      weekday[2] = "Tuesday";
+	      weekday[3] = "Wednesday";
+	      weekday[4] = "Thursday";
+	      weekday[5] = "Friday";
+	      weekday[6] = "Saturday";
+
+	      var currentDay = weekday[date.getDay()];
+	      
+	      var time = currentDay + " " + hours + ":" + minutes + " " + session;
+	      document.getElementById("clock").innerText = time;
+	      document.getElementById("clock").textContent = time;
+	  }
+
+	  displayTime();
+      });
+    </script>
+  </body>
+</html>
